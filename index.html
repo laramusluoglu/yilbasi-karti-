@@ -617,10 +617,7 @@
 
 
       <!-- Hediye Kutusu -->
-      <div id="gift-box-wrapper" style="text-align: center; margin: 20px 0; cursor: pointer;">
-        <img src="image/aa.png" alt="Hediye Kutusu" id="gift-box" style="max-width: 200px; height: auto; animation: shake 2s ease-in-out infinite;">
-        <div class="hint" style="margin-top: 8px;">Buraya tıklayınız</div>
-      </div>
+      <img src="image/aa.png" alt="Hediye Kutusu" id="gift-box" style="max-width: 200px; height: auto; animation: shake 2s ease-in-out infinite; cursor: pointer; display: block; margin: 20px auto;">
 
       <!-- Tıklayınca açılacak form -->
       <div id="santa-section">
@@ -698,7 +695,6 @@
 
     <script>
       const giftBox = document.getElementById("gift-box");
-      const giftBoxWrapper = document.getElementById("gift-box-wrapper");
       const santaSection = document.getElementById("santa-section");
       const wishForm = document.getElementById("wish-form");
       const tree = document.getElementById("tree");
@@ -845,8 +841,8 @@
       loadOrnaments();
 
       // Hediye kutusuna tıklayınca formu göster
-      giftBoxWrapper.addEventListener("click", () => {
-        giftBoxWrapper.style.display = "none";
+      giftBox.addEventListener("click", () => {
+        giftBox.style.display = "none";
         santaSection.classList.add("visible");
       });
 
