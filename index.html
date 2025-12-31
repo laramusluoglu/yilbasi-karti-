@@ -31,6 +31,12 @@
       window.firestoreOnSnapshot = onSnapshot;
       window.firestoreQuery = query;
       window.firestoreOrderBy = orderBy;
+
+      // Migration için ek fonksiyonlar
+      import { getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+      window.firestoreGetDocs = getDocs;
+      window.firestoreDoc = doc;
+      window.firestoreUpdateDoc = updateDoc;
     </script>
 
     <style>
@@ -843,6 +849,57 @@
           console.error('Süs kaydedilirken hata oluştu:', error);
           alert('Süs kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
         }
+      }
+
+      // Pozisyon migration - mevcut süsleri yeni pozisyonlara taşı
+      async function migrateOrnamentPositions() {
+        if (!window.firestoreDB || !window.firestoreGetDocs) {
+          console.log('Firebase henüz hazır değil, migration bekleniyor...');
+          setTimeout(migrateOrnamentPositions, 100);
+          return;
+        }
+
+        try {
+          const q = window.firestoreQuery(
+            window.firestoreCollection(window.firestoreDB, 'ornaments'),
+            window.firestoreOrderBy('timestamp', 'asc')
+          );
+
+          const snapshot = await window.firestoreGetDocs(q);
+
+          console.log(`${snapshot.docs.length} süs bulundu, pozisyonlar güncelleniyor...`);
+
+          for (let i = 0; i < snapshot.docs.length; i++) {
+            const ornDoc = snapshot.docs[i];
+            const data = ornDoc.data();
+
+            // Yeni pozisyon indexini hesapla
+            const newPos = ornamentPositions[data.positionIndex];
+
+            if (newPos && (data.top !== newPos.top || data.left !== newPos.left)) {
+              // Pozisyon güncellenmeli
+              await window.firestoreUpdateDoc(
+                window.firestoreDoc(window.firestoreDB, 'ornaments', ornDoc.id),
+                {
+                  top: newPos.top,
+                  left: newPos.left
+                }
+              );
+              console.log(`Süs ${i + 1} pozisyonu güncellendi`);
+            }
+          }
+
+          console.log('Migration tamamlandı!');
+        } catch (error) {
+          console.error('Migration hatası:', error);
+        }
+      }
+
+      // Migration'ı bir kez çalıştır (sayfa yüklendiğinde)
+      let migrationRun = false;
+      if (!migrationRun) {
+        migrationRun = true;
+        setTimeout(migrateOrnamentPositions, 2000);
       }
 
       // İlk ağacı trees dizisine ekle
