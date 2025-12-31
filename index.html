@@ -518,8 +518,9 @@
       }
 
       .ornament-option.selected {
-        border-color: transparent;
+        border-color: #00a6ff;
         animation: shake 2s ease-in-out infinite;
+        transform: scale(1.1);
       }
 
       .ornament-help-text {
@@ -697,11 +698,14 @@
       const giftBox = document.getElementById("gift-box");
       const santaSection = document.getElementById("santa-section");
       const wishForm = document.getElementById("wish-form");
-      const tree = document.getElementById("tree");
       const ornamentButtons = document.querySelectorAll(".ornament-option");
 
       let selectedOrnamentStyle = null;
       let ornamentCount = 0;
+
+      // Tüm ağaçları ve her ağaçtaki kullanılmış pozisyonları takip etmek için
+      let trees = [];
+      const usedPositionsByTree = {};
 
       // Her ağaçta max 15 süs olacak
       const MAX_ORNAMENTS_PER_TREE = 15;
@@ -724,10 +728,6 @@
         { top: "64%", left: "60%" },
         { top: "70%", left: "50%" },
       ];
-
-      // Tüm ağaçları ve her ağaçtaki kullanılmış pozisyonları takip etmek için
-      let trees = [];
-      const usedPositionsByTree = {};
 
       // Yeni ağaç ekle
       function addNewTree() {
