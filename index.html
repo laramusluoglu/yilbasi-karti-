@@ -13,7 +13,6 @@
       import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
       import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-      // Firebase yapılandırması
       const firebaseConfig = {
         apiKey: "AIzaSyA09HN_U36nliMMA64NjiUDcTmHaVuva7Q",
         authDomain: "yilbasi-karti.firebaseapp.com",
@@ -26,7 +25,6 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      // Global olarak erişilebilir hale getir
       window.firestoreDB = db;
       window.firestoreCollection = collection;
       window.firestoreAddDoc = addDoc;
@@ -518,9 +516,8 @@
       }
 
       .ornament-option.selected {
-        border-color: #00a6ff;
+        border-color: transparent;
         animation: shake 2s ease-in-out infinite;
-        transform: scale(1.1);
       }
 
       .ornament-help-text {
@@ -617,8 +614,10 @@
       </div>
 
 
-      <!-- Hediye Kutusu -->
-      <img src="image/aa.png" alt="Hediye Kutusu" id="gift-box" style="max-width: 200px; height: auto; animation: shake 2s ease-in-out infinite; cursor: pointer; display: block; margin: 20px auto;" onclick="this.style.display='none'; document.getElementById('santa-section').classList.add('visible');">
+      <!-- AA Görseli Buton -->
+      <div id="aa-button-wrapper" style="text-align: center; margin: 20px 0;">
+        <img src="image/aa.png" alt="Tıkla" id="aa-button" style="cursor: pointer; max-width: 200px; height: auto; animation: shake 2s ease-in-out infinite;">
+      </div>
 
       <!-- Tıklayınca açılacak form -->
       <div id="santa-section">
@@ -695,17 +694,15 @@
     </div>
 
     <script>
-      const giftBox = document.getElementById("gift-box");
+      const aaButton = document.getElementById("aa-button");
+      const aaButtonWrapper = document.getElementById("aa-button-wrapper");
       const santaSection = document.getElementById("santa-section");
       const wishForm = document.getElementById("wish-form");
+      const tree = document.getElementById("tree");
       const ornamentButtons = document.querySelectorAll(".ornament-option");
 
       let selectedOrnamentStyle = null;
       let ornamentCount = 0;
-
-      // Tüm ağaçları ve her ağaçtaki kullanılmış pozisyonları takip etmek için
-      let trees = [];
-      const usedPositionsByTree = {};
 
       // Her ağaçta max 15 süs olacak
       const MAX_ORNAMENTS_PER_TREE = 15;
@@ -728,6 +725,10 @@
         { top: "64%", left: "60%" },
         { top: "70%", left: "50%" },
       ];
+
+      // Tüm ağaçları ve her ağaçtaki kullanılmış pozisyonları takip etmek için
+      let trees = [];
+      const usedPositionsByTree = {};
 
       // Yeni ağaç ekle
       function addNewTree() {
@@ -754,6 +755,12 @@
 
       // Firestore'dan süsleri yükle ve gerçek zamanlı dinle
       function loadOrnaments() {
+        if (!window.firestoreDB) {
+          console.log('Firebase henüz hazır değil, bekleniyor...');
+          setTimeout(loadOrnaments, 100);
+          return;
+        }
+
         const q = window.firestoreQuery(
           window.firestoreCollection(window.firestoreDB, 'ornaments'),
           window.firestoreOrderBy('timestamp', 'asc')
@@ -771,7 +778,7 @@
             usedPositionsByTree[key].clear();
           });
 
-          // Ağaç sayısını hesapla ve gerekirse yeni ağaçlar ekle
+          // Ağaç sayısını hesapla
           let maxTreeIndex = 0;
           snapshot.docs.forEach(doc => {
             const data = doc.data();
@@ -802,6 +809,7 @@
             ornament.style.left = ornData.left;
             ornament.dataset.name = ornData.name;
             ornament.dataset.wish = ornData.wish;
+            ornament.dataset.positionIndex = ornData.positionIndex;
 
             const ornamentImg = document.createElement("img");
             ornamentImg.src = `image/${ornData.style}.png`;
@@ -826,7 +834,6 @@
             window.firestoreCollection(window.firestoreDB, 'ornaments'),
             ornamentData
           );
-          console.log('Süs başarıyla kaydedildi!');
         } catch (error) {
           console.error('Süs kaydedilirken hata oluştu:', error);
           alert('Süs kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
@@ -840,9 +847,9 @@
       // Sayfa yüklendiğinde süsleri yükle
       loadOrnaments();
 
-      // Hediye kutusuna tıklayınca formu göster
-      giftBox.addEventListener("click", () => {
-        giftBox.style.display = "none";
+      // AA butonuna tıklayınca formu göster
+      aaButton.addEventListener("click", () => {
+        aaButtonWrapper.style.display = "none";
         santaSection.classList.add("visible");
       });
 
@@ -857,7 +864,8 @@
 
       // Form submit olunca:
       // 1) İsim + dilek + süs seçimi kontrol
-      // 2) Firestore'a kaydet (gerçek zamanlı listener otomatik günceller)
+      // 2) Ağacın üstüne süs ekle
+      // 3) Süse tıklayınca isim + dilek göster
       wishForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const name = document.getElementById("name").value.trim();
@@ -874,6 +882,7 @@
         }
 
         // Son ağacı bul veya yeni ağaç ekle
+        let targetTree = trees[trees.length - 1];
         let targetTreeIndex = trees.length - 1;
 
         // Son ağaçta boş pozisyon ara
@@ -885,15 +894,16 @@
           }
         }
 
-        // Eğer son ağaç doluysa yeni ağaç için index hesapla
+        // Eğer son ağaç doluysa yeni ağaç ekle
         if (positionIndex === -1) {
-          targetTreeIndex = trees.length; // Yeni ağaç oluşturulacak
+          targetTree = addNewTree();
+          targetTreeIndex = trees.length - 1;
           positionIndex = 0; // Yeni ağaçta ilk pozisyon
         }
 
         const pos = ornamentPositions[positionIndex];
 
-        // Firestore'a kaydet
+        // Firestore'a kaydet (listener otomatik olarak ağaca ekleyecek)
         const ornamentData = {
           treeIndex: targetTreeIndex,
           positionIndex: positionIndex,
