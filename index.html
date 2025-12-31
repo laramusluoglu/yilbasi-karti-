@@ -617,9 +617,9 @@
 
 
       <!-- AA Görseli Buton -->
-      <div id="aa-button-wrapper" style="text-align: center; margin: 20px 0;">
-        <img src="image/aa.png" alt="Tıkla" id="aa-button" style="cursor: pointer; max-width: 200px; height: auto; animation: shake 2s ease-in-out infinite;">
-        <div class="hint" style="margin-top: 8px;">Buraya tıklayınız</div>
+      <div id="aa-button-wrapper" style="text-align: center; margin: 20px 0; cursor: pointer;" onclick="document.getElementById('aa-button').click()">
+        <img src="image/aa.png" alt="Tıkla" id="aa-button" style="max-width: 200px; height: auto; animation: shake 2s ease-in-out infinite; pointer-events: none;">
+        <div class="hint" style="margin-top: 8px; pointer-events: none;">Buraya tıklayınız</div>
       </div>
 
       <!-- Tıklayınca açılacak form -->
