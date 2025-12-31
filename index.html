@@ -710,31 +710,38 @@
       let selectedOrnamentStyle = null;
       let ornamentCount = 0;
 
-      // Her ağaçta max 15 süs olacak
-      const MAX_ORNAMENTS_PER_TREE = 15;
+      // Her ağaçta max 20 süs olacak
+      const MAX_ORNAMENTS_PER_TREE = 20;
 
-      // Ağacın üzerinde kullanılacak pozisyonlar (15 pozisyon)
+      // Ağacın üzerinde kullanılacak pozisyonlar (20 pozisyon)
       // Ağaç şeklinde yukarıdan aşağıya doğru genişleyen bir dağılım
       const ornamentPositions = [
-        { top: "22%", left: "50%" },   // Seviye 1: En üst (1)
+        { top: "18%", left: "50%" },   // Seviye 1: En üst (1)
 
-        { top: "34%", left: "40%" },   // Seviye 2: İki yan (2)
-        { top: "34%", left: "60%" },
+        { top: "28%", left: "40%" },   // Seviye 2: İki yan (2)
+        { top: "28%", left: "60%" },
 
-        { top: "46%", left: "33%" },   // Seviye 3: Üç sıra (3)
-        { top: "46%", left: "50%" },
-        { top: "46%", left: "67%" },
+        { top: "38%", left: "33%" },   // Seviye 3: Üç sıra (3)
+        { top: "38%", left: "50%" },
+        { top: "38%", left: "67%" },
 
-        { top: "58%", left: "28%" },   // Seviye 4: Dört sıra (4)
-        { top: "58%", left: "41%" },
-        { top: "58%", left: "59%" },
-        { top: "58%", left: "72%" },
+        { top: "48%", left: "28%" },   // Seviye 4: Dört sıra (4)
+        { top: "48%", left: "41%" },
+        { top: "48%", left: "59%" },
+        { top: "48%", left: "72%" },
 
-        { top: "70%", left: "24%" },   // Seviye 5: Beş sıra (5)
-        { top: "70%", left: "36%" },
-        { top: "70%", left: "50%" },
-        { top: "70%", left: "64%" },
-        { top: "70%", left: "76%" },
+        { top: "58%", left: "24%" },   // Seviye 5: Beş sıra (5)
+        { top: "58%", left: "36%" },
+        { top: "58%", left: "50%" },
+        { top: "58%", left: "64%" },
+        { top: "58%", left: "76%" },
+
+        { top: "68%", left: "20%" },   // Seviye 6: Altı sıra (6)
+        { top: "68%", left: "32%" },
+        { top: "68%", left: "44%" },
+        { top: "68%", left: "56%" },
+        { top: "68%", left: "68%" },
+        { top: "68%", left: "80%" },
       ];
 
       // Tüm ağaçları ve her ağaçtaki kullanılmış pozisyonları takip etmek için
